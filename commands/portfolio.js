@@ -22,7 +22,6 @@ module.exports = {
 				.setName('team_members')
 				.setDescription('The names of each team member present.')
 				.setRequired(true)
-				.setAutocomplete(true)
 		)
 		.addStringOption((option) =>
 			option
@@ -31,11 +30,12 @@ module.exports = {
 				.setRequired(true)
 		),
 	async autocomplete(interaction) {
-		const focusedValue = interaction.options.getFocused()
-		const choices = ['Ashley', 'Robbie', 'Tanner', 'Dizire', 'Mayank']
-		const filtered = choices.filter((choice) =>
-			choice.toLowerCase().startsWith(focusedValue)
-		)
+		/*
+			CURRENTLY UNUSED
+		*/
+
+		const focusedValue = interaction.options.getFocused().toLowerCase()
+		const choices = ['Ashley', 'Robbie', 'Tanner', 'Dizire', 'Mayank', 'Robert']
 
 		if (focusedValue == '') {
 			await interaction.respond([
@@ -45,19 +45,16 @@ module.exports = {
 				},
 			])
 		} else {
-			formattedValue = formatFocusedValue(focusedValue)
+			const filtered = choices.filter((choice) => {
+				const arr = formatFocusedValue(focusedValue).toLowerCase().split(', ')
+				return choice.toLowerCase().startsWith(arr[arr.length - 1])
+			})
+
+			console.log(formatFocusedValue(focusedValue))
+			console.log(filtered)
 
 			await interaction.respond(
-				[
-					{
-						name: formattedValue,
-						value: formattedValue,
-					},
-					{
-						name: choices.join(', '),
-						value: choices.join(', '),
-					},
-				].concat(filtered.map((choice) => ({ name: choice, value: choice })))
+				filtered.map((choice) => ({ name: choice, value: choice }))
 			)
 		}
 	},
@@ -114,6 +111,11 @@ module.exports = {
 }
 
 function formatFocusedValue(str) {
+	const arr = str.replace(/,/g, ' ').split(' ')
+	return capitalizeEachWord(arr.join(', ').replace(/, , /g, ', '))
+}
+
+function capitalizeEachWord(str) {
 	return str.replace(/\w\S*/g, function (txt) {
 		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
 	})
